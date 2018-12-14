@@ -1,5 +1,6 @@
 package toliner.discord.siritori
 
+import kotlinx.serialization.json.JSON
 import net.dv8tion.jda.core.JDABuilder
 import net.dv8tion.jda.core.entities.Game
 import net.dv8tion.jda.core.entities.Guild
@@ -7,11 +8,12 @@ import net.dv8tion.jda.core.entities.TextChannel
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent
 import net.dv8tion.jda.core.hooks.ListenerAdapter
 import toliner.discord.siritori.plugin.SiritoriIllegalWordException
+import java.io.File
 
-val jda = JDABuilder(TODO("Load token from config file") as String)
-    .setGame(Game.playing(TODO("Load game name from config file") as String))
+val config = JSON.parse(ConfigData.serializer(), File("config.json").bufferedReader().use { it.readText() })
+val jda = JDABuilder(config.token)
+    .setGame(Game.playing(config.gameMessage))
     .build()
-val config: Any = TODO("This is place holder of config data")
 //ToDo: 排他的処理(処理中にメッセージ送信によるバグの防止。)
 
 fun main() {
@@ -32,6 +34,7 @@ fun main() {
             ).queue()
         }
 
-        private fun verifyGuildAndChannel(guild: Guild, channel: TextChannel): Boolean = TODO("reference config & check")
+        private fun verifyGuildAndChannel(guild: Guild, channel: TextChannel): Boolean =
+            config.guild.let { info -> info.guildId == guild.idLong && info.channelId == channel.idLong }
     })
 }
