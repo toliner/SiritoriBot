@@ -14,7 +14,6 @@ val config = JSON.parse(ConfigData.serializer(), File("config.json").bufferedRea
 val jda = JDABuilder(config.token)
     .setGame(Game.playing(config.gameMessage))
     .build()
-//ToDo: 排他的処理(処理中にメッセージ送信によるバグの防止。)
 
 fun main() {
     jda.addEventListener(object : ListenerAdapter() {
@@ -24,16 +23,18 @@ fun main() {
 
         override fun onGuildMessageReceived(event: GuildMessageReceivedEvent) {
             if (!verifyGuildAndChannel(event.guild, event.channel)) return
-            event.channel.sendMessage(
-                checker.check(event.message.contentRaw).fold({
-                    buildString {
-                        appendln("単語:\"${event.message.contentRaw}\"($it)を受け付けました。")
-                        appendln("次の単語の読みの先頭の文字は\"${it.last()}\"です。")
-                    }
-                }, { e: SiritoriIllegalWordException ->
-                    e.message!!
-                })
-            ).queue()
+            synchronized(checker) {
+                event.channel.sendMessage(
+                    checker.check(event.message.contentRaw).fold({
+                        buildString {
+                            appendln("単語:\"${event.message.contentRaw}\"($it)を受け付けました。")
+                            appendln("次の単語の読みの先頭の文字は\"${it.last()}\"です。")
+                        }
+                    }, { e: SiritoriIllegalWordException ->
+                        e.message!!
+                    })
+                ).queue()
+            }
         }
 
         private fun verifyGuildAndChannel(guild: Guild, channel: TextChannel): Boolean =
