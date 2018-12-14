@@ -26,7 +26,7 @@ object SiritoriLogger {
             logFile.outputStream().buffered().use {
                 it.write(ProtoBuf.dump(serializer, synchronized(logs) { logs.toList() }))
             }
-        }, 10_000L, 10_000L)
+        }, config.savePeriod, config.savePeriod)
     }
 
     fun addLog(log: SiritoriLog) {
