@@ -1,17 +1,18 @@
 package toliner.discord.siritori
 
-import toliner.discord.siritori.plugin.ISiritoriCheckerPlugin
 import com.github.kittinunf.result.Result
+import toliner.discord.siritori.plugin.ISiritoriCheckerPlugin
 import toliner.discord.siritori.plugin.SiritoriIllegalWordException
 
 class SiritoriChecker(private val plugins: List<ISiritoriCheckerPlugin>) {
-    fun check(word: String): Result<Unit, SiritoriIllegalWordException> {
-        return plugins.asSequence()
-            .map {
-                it.check(word)
-            }.filter {
-                it is Result.Failure
-            }.firstOrNull() ?: Result.of { Unit }
+    fun check(word: String): Result<String, SiritoriIllegalWordException> {
+        return plugins.fold(Result.of { word }) { acc, plugin ->
+            acc.fold({
+                plugin.check(it)
+            }, {
+                acc
+            })
+        }
     }
 
     class Builder {

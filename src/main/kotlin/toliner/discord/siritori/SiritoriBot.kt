@@ -24,10 +24,12 @@ fun main() {
 
         override fun onGuildMessageReceived(event: GuildMessageReceivedEvent) {
             if (!verifyGuildAndChannel(event.guild, event.channel)) return
-            //ToDo: check whether owner is banned from Siritori or not
             event.channel.sendMessage(
                 checker.check(event.message.contentRaw).fold({
-                    TODO("チャットの単語の読みの最後の部分をメッセージで送信する。") as String
+                    buildString {
+                        appendln("単語:\"${event.message.contentRaw}\"($it)を受け付けました。")
+                        appendln("次の単語の読みの先頭の文字は\"${it.last()}\"です。")
+                    }
                 }, { e: SiritoriIllegalWordException ->
                     e.message!!
                 })
