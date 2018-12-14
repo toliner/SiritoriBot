@@ -34,6 +34,8 @@ dependencies {
     compile("org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.9.1")
     compile(group = "com.nativelibs4java", name = "bridj", version = "0.7.0")
     implementation(files("libs/cmecab-java-2.1.0.jar"))
+    compile("com.github.kittinunf.result:result:2.0.0")
+    compile("com.github.kittinunf.result:result-coroutines:2.0.0")
 }
 
 tasks.withType<KotlinCompile> {
