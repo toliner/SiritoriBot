@@ -7,8 +7,10 @@ import net.dv8tion.jda.core.entities.Guild
 import net.dv8tion.jda.core.entities.TextChannel
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent
 import net.dv8tion.jda.core.hooks.ListenerAdapter
+import toliner.discord.siritori.plugin.ISiritoriCheckerPlugin
 import toliner.discord.siritori.plugin.SiritoriIllegalWordException
 import java.io.File
+import java.util.*
 
 val config = JSON.parse(ConfigData.serializer(), File("config.json").bufferedReader().use { it.readText() })
 val jda = JDABuilder(config.token)
@@ -17,9 +19,24 @@ val jda = JDABuilder(config.token)
 
 fun main() {
     jda.addEventListener(object : ListenerAdapter() {
-
-        // ToDo: apply plugins
-        val checker = SiritoriChecker.Builder().build()
+        val checker = SiritoriChecker.Builder().also { builder ->
+            val f = ClassLoader::class.java.getDeclaredField("classes")
+            f.isAccessible = true
+            val classes = f.get(ClassLoader.getSystemClassLoader()) as Vector<Class<*>>
+            classes.asSequence().filter {
+                !it.isAnnotation && !it.isAnonymousClass && !it.isArray && !it.isEnum && !it.isInterface && !it.isPrimitive
+            }.filter {
+                ISiritoriCheckerPlugin::class.java.isAssignableFrom(it)
+            }.mapNotNull {
+                try {
+                    it.getConstructor().newInstance() as ISiritoriCheckerPlugin
+                } catch (e: Exception) {
+                    null
+                }
+            }.forEach {
+                builder.applyPlugin(it)
+            }
+        }.build()
 
         override fun onGuildMessageReceived(event: GuildMessageReceivedEvent) {
             if (!verifyGuildAndChannel(event.guild, event.channel)) return
