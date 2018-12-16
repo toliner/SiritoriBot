@@ -13,7 +13,7 @@ import toliner.discord.siritori.plugin.SiritoriIllegalWordException
 import java.io.File
 import java.util.*
 
-val config = JSON.parse(ConfigData.serializer(), File("config.json").bufferedReader().use { it.readText() })
+val config = JSON.parse(ConfigData.serializer(), File("config.json").readText())
 val jda = JDABuilder(config.token)
     .setGame(Game.playing(config.gameMessage))
     .build()
