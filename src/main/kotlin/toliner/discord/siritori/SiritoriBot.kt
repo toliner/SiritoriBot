@@ -65,6 +65,7 @@ fun main() {
 
         override fun onShutdown(event: ShutdownEvent?) {
             File("blackboard.json").writeText(JSON.stringify(BlackBoard.serializer(), blackboard))
+            SiritoriLogger.save()
         }
 
         private fun verifyGuildAndChannel(guild: Guild, channel: TextChannel): Boolean =
