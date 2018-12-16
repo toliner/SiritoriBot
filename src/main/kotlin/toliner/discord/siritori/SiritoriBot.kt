@@ -5,6 +5,7 @@ import net.dv8tion.jda.core.JDABuilder
 import net.dv8tion.jda.core.entities.Game
 import net.dv8tion.jda.core.entities.Guild
 import net.dv8tion.jda.core.entities.TextChannel
+import net.dv8tion.jda.core.events.ShutdownEvent
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent
 import net.dv8tion.jda.core.hooks.ListenerAdapter
 import toliner.discord.siritori.plugin.ISiritoriCheckerPlugin
@@ -16,6 +17,14 @@ val config = JSON.parse(ConfigData.serializer(), File("config.json").bufferedRea
 val jda = JDABuilder(config.token)
     .setGame(Game.playing(config.gameMessage))
     .build()
+val blackboard = File("blackboard.json").let { file ->
+    if (file.exists()) {
+        JSON.parse(BlackBoard.serializer(), file.readText())
+    } else {
+        file.createNewFile()
+        BlackBoard()
+    }
+}
 
 fun main() {
     jda.addEventListener(object : ListenerAdapter() {
@@ -52,6 +61,10 @@ fun main() {
                     })
                 ).queue()
             }
+        }
+
+        override fun onShutdown(event: ShutdownEvent?) {
+            File("blackboard.json").writeText(JSON.stringify(BlackBoard.serializer(), blackboard))
         }
 
         private fun verifyGuildAndChannel(guild: Guild, channel: TextChannel): Boolean =
