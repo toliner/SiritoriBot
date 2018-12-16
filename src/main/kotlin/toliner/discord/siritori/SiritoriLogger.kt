@@ -22,11 +22,7 @@ object SiritoriLogger {
         }
         loggedWords = logs.map { it.word }.toMutableSet()
         // 10000ms = 10sごとにログ保存
-        timer.schedule(timerTask {
-            logFile.outputStream().buffered().use {
-                it.write(ProtoBuf.dump(serializer, synchronized(logs) { logs.toList() }))
-            }
-        }, config.savePeriod, config.savePeriod)
+        timer.schedule(timerTask { save() }, config.savePeriod, config.savePeriod)
     }
 
     fun addLog(log: SiritoriLog) {
@@ -37,6 +33,10 @@ object SiritoriLogger {
     fun contains(log: SiritoriLog) = loggedWords.contains(log.word)
 
     fun clear() = logs.clear()
+
+    fun save() {
+        logFile.writeBytes(ProtoBuf.dump(serializer, synchronized(logs) { logs.toList() }))
+    }
 
     operator fun plusAssign(log: SiritoriLog) = addLog(log)
 }
