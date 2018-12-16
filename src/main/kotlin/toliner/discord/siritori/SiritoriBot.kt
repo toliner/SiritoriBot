@@ -1,6 +1,8 @@
 package toliner.discord.siritori
 
+import kotlinx.serialization.internal.StringSerializer
 import kotlinx.serialization.json.JSON
+import kotlinx.serialization.map
 import net.dv8tion.jda.core.JDABuilder
 import net.dv8tion.jda.core.entities.Game
 import net.dv8tion.jda.core.entities.Guild
@@ -19,10 +21,10 @@ val jda = JDABuilder(config.token)
     .build()
 val blackboard = File("blackboard.json").let { file ->
     if (file.exists()) {
-        JSON.parse(BlackBoard.serializer(), file.readText())
+        JSON.parse((StringSerializer to StringSerializer).map, file.readText())
     } else {
         file.createNewFile()
-        BlackBoard()
+        mutableMapOf()
     }
 }
 
@@ -64,7 +66,7 @@ fun main() {
         }
 
         override fun onShutdown(event: ShutdownEvent?) {
-            File("blackboard.json").writeText(JSON.stringify(BlackBoard.serializer(), blackboard))
+            File("blackboard.json").writeText(JSON.stringify((StringSerializer to StringSerializer).map, blackboard))
             SiritoriLogger.save()
         }
 
