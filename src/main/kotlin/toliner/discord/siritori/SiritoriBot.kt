@@ -48,7 +48,7 @@ fun main() {
                 it.name to it
             }
             config.plugins.forEach {
-                builder.applyPlugin(plugins[it] ?: throw RuntimeException("\"${it}\"という名前のpluginは存在しません。") )
+                builder.applyPlugin(plugins[it] ?: throw RuntimeException("\"${it}\"という名前のpluginは存在しません。"))
             }
         }.build()
 
@@ -58,6 +58,7 @@ fun main() {
                 event.channel.sendMessage(
                     checker.check(event.message.contentRaw).fold({
                         SiritoriLogger.lastYomi = SiritoriLogger.lastYomiTemp
+                        SiritoriLogger.addLog(SiritoriLog(event.author.idLong, it))
                         buildString {
                             appendln("単語:\"${event.message.contentRaw}\"($it)を受け付けました。")
                             appendln("次の単語の読みの先頭の文字は\"${it.last()}\"です。")
