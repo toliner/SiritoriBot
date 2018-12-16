@@ -13,6 +13,9 @@ object SiritoriLogger {
     private val serializer = SiritoriLog.serializer().list
     private val timer = Timer()
 
+    var lastYomi = ""
+    var lastYomiTemp = ""
+
     init {
         logs = if (logFile.exists()) {
             ProtoBuf.load(serializer, logFile.inputStream().use { it.readAllBytes() }).toMutableSet()
@@ -30,13 +33,15 @@ object SiritoriLogger {
         loggedWords += log.word
     }
 
-    fun contains(log: SiritoriLog) = loggedWords.contains(log.word)
+    fun contains(word: String) = loggedWords.contains(word)
 
     fun clear() = logs.clear()
 
     fun save() {
         logFile.writeBytes(ProtoBuf.dump(serializer, synchronized(logs) { logs.toList() }))
     }
+
+    fun getLast(): SiritoriLog? = logs.lastOrNull()
 
     operator fun plusAssign(log: SiritoriLog) = addLog(log)
 }

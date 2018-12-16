@@ -57,6 +57,7 @@ fun main() {
             synchronized(checker) {
                 event.channel.sendMessage(
                     checker.check(event.message.contentRaw).fold({
+                        SiritoriLogger.lastYomi = SiritoriLogger.lastYomiTemp
                         buildString {
                             appendln("単語:\"${event.message.contentRaw}\"($it)を受け付けました。")
                             appendln("次の単語の読みの先頭の文字は\"${it.last()}\"です。")
