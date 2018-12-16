@@ -34,7 +34,7 @@ fun main() {
             val f = ClassLoader::class.java.getDeclaredField("classes")
             f.isAccessible = true
             val classes = f.get(ClassLoader.getSystemClassLoader()) as Vector<Class<*>>
-            classes.asSequence().filter {
+            val plugins = classes.asSequence().filter {
                 !it.isAnnotation && !it.isAnonymousClass && !it.isArray && !it.isEnum && !it.isInterface && !it.isPrimitive
             }.filter {
                 ISiritoriCheckerPlugin::class.java.isAssignableFrom(it)
@@ -44,9 +44,11 @@ fun main() {
                 } catch (e: Exception) {
                     null
                 }
-            }.forEach {
-                it.loadConfig(blackboard)
-                builder.applyPlugin(it)
+            }.associate {
+                it.name to it
+            }
+            config.plugins.forEach {
+                builder.applyPlugin(plugins[it] ?: throw RuntimeException("\"${it}\"という名前のpluginは存在しません。") )
             }
         }.build()
 
