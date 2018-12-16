@@ -21,7 +21,7 @@ val jda = JDABuilder(config.token)
     .build()
 val blackboard = File("blackboard.json").let { file ->
     if (file.exists()) {
-        JSON.parse((StringSerializer to StringSerializer).map, file.readText())
+        JSON.parse((StringSerializer to StringSerializer).map, file.readText()) as MutableMap
     } else {
         file.createNewFile()
         mutableMapOf()
@@ -45,6 +45,7 @@ fun main() {
                     null
                 }
             }.forEach {
+                it.loadConfig(blackboard)
                 builder.applyPlugin(it)
             }
         }.build()
@@ -66,6 +67,7 @@ fun main() {
         }
 
         override fun onShutdown(event: ShutdownEvent?) {
+            checker.saveConfig(blackboard)
             File("blackboard.json").writeText(JSON.stringify((StringSerializer to StringSerializer).map, blackboard))
             SiritoriLogger.save()
         }

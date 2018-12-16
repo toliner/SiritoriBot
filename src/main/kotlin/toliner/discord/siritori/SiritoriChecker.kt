@@ -15,6 +15,12 @@ class SiritoriChecker(private val plugins: List<ISiritoriCheckerPlugin>) {
         }
     }
 
+    fun saveConfig(blackboard: MutableMap<String, String>) {
+        plugins.forEach {
+            it.saveConfig(blackboard)
+        }
+    }
+
     class Builder {
         private val plugins = mutableListOf<ISiritoriCheckerPlugin>()
 
