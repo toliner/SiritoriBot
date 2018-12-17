@@ -13,6 +13,7 @@ buildscript {
 plugins {
     kotlin("jvm") version "1.3.11"
     id("kotlinx-serialization") version "1.3.11"
+    id("application")
 }
 
 group = "toliner.discord"
@@ -39,4 +40,8 @@ dependencies {
 
 tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "1.8"
+}
+
+application {
+    mainClassName = "toliner.discord.siritori.SiritoriBotKt"
 }
