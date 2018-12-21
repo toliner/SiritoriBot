@@ -10,3 +10,5 @@ interface ISiritoriCheckerPlugin {
     fun loadConfig(blackboard: Map<String, String>)
     fun saveConfig(blackboard: MutableMap<String, String>)
 }
+
+fun ISiritoriCheckerPlugin.toPair() = name to this

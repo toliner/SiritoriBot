@@ -10,10 +10,11 @@ import net.dv8tion.jda.core.entities.TextChannel
 import net.dv8tion.jda.core.events.ShutdownEvent
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent
 import net.dv8tion.jda.core.hooks.ListenerAdapter
-import toliner.discord.siritori.plugin.ISiritoriCheckerPlugin
+import toliner.discord.siritori.plugin.SiritoriCorePlugin
 import toliner.discord.siritori.plugin.SiritoriIllegalWordException
+import toliner.discord.siritori.plugin.WordSizeCounter
+import toliner.discord.siritori.plugin.toPair
 import java.io.File
-import java.util.*
 
 val config = JSON.parse(ConfigData.serializer(), File("config.json").readText())
 val jda = JDABuilder(config.token)
@@ -27,26 +28,14 @@ val blackboard = File("blackboard.json").let { file ->
         mutableMapOf()
     }
 }
+val plugins = mapOf(
+    SiritoriCorePlugin().toPair(),
+    WordSizeCounter().toPair()
+)
 
 fun main() {
     jda.addEventListener(object : ListenerAdapter() {
         val checker = SiritoriChecker.Builder().also { builder ->
-            val f = ClassLoader::class.java.getDeclaredField("classes")
-            f.isAccessible = true
-            val classes = f.get(ClassLoader.getSystemClassLoader()) as Vector<Class<*>>
-            val plugins = classes.asSequence().filter {
-                !it.isAnnotation && !it.isAnonymousClass && !it.isArray && !it.isEnum && !it.isInterface && !it.isPrimitive
-            }.filter {
-                ISiritoriCheckerPlugin::class.java.isAssignableFrom(it)
-            }.mapNotNull {
-                try {
-                    it.getConstructor().newInstance() as ISiritoriCheckerPlugin
-                } catch (e: Exception) {
-                    null
-                }
-            }.associate {
-                it.name to it
-            }
             config.plugins.forEach {
                 builder.applyPlugin(plugins[it] ?: throw RuntimeException("\"${it}\"という名前のpluginは存在しません。"))
             }

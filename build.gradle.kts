@@ -1,3 +1,4 @@
+import org.gradle.jvm.tasks.Jar
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 buildscript {
@@ -44,4 +45,8 @@ tasks.withType<KotlinCompile> {
 
 application {
     mainClassName = "toliner.discord.siritori.SiritoriBotKt"
+}
+
+tasks.withType<Jar> {
+    manifest.attributes["Main-Class"] = "toliner.discord.siritori.SiritoriBotKt"
 }
