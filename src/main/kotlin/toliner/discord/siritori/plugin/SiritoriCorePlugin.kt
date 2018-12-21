@@ -18,9 +18,8 @@ class SiritoriCorePlugin : ISiritoriCheckerPlugin {
             return Result.error(SiritoriIllegalWordException("その単語はすでに使われています。"))
         }
         val yomi = getYomi(word.word)
-        val last = SiritoriLogger.lastYomi
-        return if (last.isEmpty() || last.last() == yomi.first()) {
-            SiritoriLogger.lastYomiTemp = yomi
+        val last = SiritoriLogger.getLast()?.yomi
+        return if (last == null || last.last() == yomi.first()) {
             Result.of { SiritoriWord(word.word, yomi) }
         } else {
             Result.error(
@@ -32,10 +31,7 @@ class SiritoriCorePlugin : ISiritoriCheckerPlugin {
     }
 
     override fun loadConfig(blackboard: Map<String, String>) {
-        val lastWord = SiritoriLogger.getLast()
-        if (lastWord != null && SiritoriLogger.lastYomi.isEmpty()) {
-            SiritoriLogger.lastYomi = getYomi(lastWord.word)
-        }
+        //Do Nothing
     }
 
     override fun saveConfig(blackboard: MutableMap<String, String>) {
