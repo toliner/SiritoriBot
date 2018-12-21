@@ -37,20 +37,35 @@ fun main() {
     jda.addEventListener(object : ListenerAdapter() {
         val checker = SiritoriChecker.Builder().also { builder ->
             config.plugins.forEach {
-                builder.applyPlugin(plugins[it] ?: throw RuntimeException("\"${it}\"という名前のpluginは存在しません。"))
+                try {
+                    builder.applyPlugin(plugins[it] ?: throw RuntimeException("\"${it}\"という名前のpluginは存在しません。"))
+                } catch (e: Exception) {
+                    jda.shutdownNow()
+                    e.printStackTrace()
+                }
             }
+            println(buildString {
+                append("Plugin ")
+                config.plugins.forEachIndexed{ i, str ->
+                    append(str)
+                    if (i != config.plugins.size - 1) {
+                        append(", ")
+                    }
+                }
+                append(" is loaded.")
+            })
+
         }.build()
 
         override fun onGuildMessageReceived(event: GuildMessageReceivedEvent) {
-            if (!verifyGuildAndChannel(event.guild, event.channel)) return
+            if (!verifyGuildAndChannel(event.guild, event.channel) || event.author.idLong == jda.selfUser.idLong) return
             synchronized(checker) {
                 event.channel.sendMessage(
                     checker.check(event.message.contentRaw).fold({
-                        SiritoriLogger.lastYomi = SiritoriLogger.lastYomiTemp
-                        SiritoriLogger.addLog(SiritoriLog(event.author.idLong, it))
+                        SiritoriLogger.addLog(SiritoriLog(event.author.idLong, it.word, it.yomi))
                         buildString {
-                            appendln("単語:\"${event.message.contentRaw}\"($it)を受け付けました。")
-                            appendln("次の単語の読みの先頭の文字は\"${it.last()}\"です。")
+                            appendln("単語:\"${event.message.contentRaw}\"(${it.yomi})を受け付けました。")
+                            appendln("次の単語の読みの先頭の文字は\"${it.yomi.last()}\"です。")
                         }
                     }, { e: SiritoriIllegalWordException ->
                         e.message!!

@@ -3,10 +3,11 @@ package toliner.discord.siritori
 import com.github.kittinunf.result.Result
 import toliner.discord.siritori.plugin.ISiritoriCheckerPlugin
 import toliner.discord.siritori.plugin.SiritoriIllegalWordException
+import toliner.discord.siritori.plugin.SiritoriWord
 
 class SiritoriChecker(private val plugins: List<ISiritoriCheckerPlugin>) {
-    fun check(word: String): Result<String, SiritoriIllegalWordException> {
-        return plugins.fold(Result.of { word }) { acc, plugin ->
+    fun check(word: String): Result<SiritoriWord, SiritoriIllegalWordException> {
+        return plugins.fold(Result.of { SiritoriWord(word, word) }) { acc, plugin ->
             acc.fold({
                 plugin.check(it)
             }, {

@@ -13,9 +13,6 @@ object SiritoriLogger {
     private val serializer = SiritoriLog.serializer().list
     private val timer = Timer()
 
-    var lastYomi = ""
-    var lastYomiTemp = ""
-
     init {
         logs = if (logFile.exists()) {
             ProtoBuf.load(serializer, logFile.inputStream().use { it.readAllBytes() }).toMutableSet()

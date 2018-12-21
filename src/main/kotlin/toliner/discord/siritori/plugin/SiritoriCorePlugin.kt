@@ -10,18 +10,18 @@ class SiritoriCorePlugin : ISiritoriCheckerPlugin {
     private val regex = """[\p{IsHan}\p{IsHiragana}\p{IsKatakana}ー]+""".toRegex()
     private val tagger = StandardTagger("-Oyomi")
 
-    override fun check(word: String): Result<String, SiritoriIllegalWordException> {
-        if (!regex.matches(word)) {
+    override fun check(word: SiritoriWord): Result<SiritoriWord, SiritoriIllegalWordException> {
+        if (!regex.matches(word.word)) {
             return Result.error(SiritoriIllegalWordException("日本語(ひらがな・かたかな・漢字・ー)のみが使用可能です。"))
         }
-        if (SiritoriLogger.contains(word)) {
+        if (SiritoriLogger.contains(word.word)) {
             return Result.error(SiritoriIllegalWordException("その単語はすでに使われています。"))
         }
-        val yomi = getYomi(word)
+        val yomi = getYomi(word.word)
         val last = SiritoriLogger.lastYomi
         return if (last.isEmpty() || last.last() == yomi.first()) {
             SiritoriLogger.lastYomiTemp = yomi
-            Result.of { word }
+            Result.of { SiritoriWord(word.word, yomi) }
         } else {
             Result.error(
                 SiritoriIllegalWordException(

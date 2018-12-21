@@ -11,8 +11,8 @@ class WordSizeCounter : ISiritoriCheckerPlugin {
     override val name: String
         get() = "word-count"
 
-    override fun check(word: String): Result<String, SiritoriIllegalWordException> {
-        return if (word.length in config.min..config.max) {
+    override fun check(word: SiritoriWord): Result<SiritoriWord, SiritoriIllegalWordException> {
+        return if (word.word.length in config.min..config.max) {
             Result.of { word }
         } else {
             Result.error(SiritoriIllegalWordException("文字数は${config.min}以上${config.max}以下でなければなりません。"))
