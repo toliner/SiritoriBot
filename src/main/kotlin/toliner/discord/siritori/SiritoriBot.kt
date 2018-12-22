@@ -9,6 +9,7 @@ import net.dv8tion.jda.core.entities.Guild
 import net.dv8tion.jda.core.entities.TextChannel
 import net.dv8tion.jda.core.events.ShutdownEvent
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent
+import net.dv8tion.jda.core.events.message.priv.PrivateMessageReceivedEvent
 import net.dv8tion.jda.core.hooks.ListenerAdapter
 import org.slf4j.LoggerFactory
 import toliner.discord.siritori.plugin.SiritoriCorePlugin
@@ -95,6 +96,13 @@ fun main() {
                         }
                     }
                 ).queue()
+            }
+        }
+
+        override fun onPrivateMessageReceived(event: PrivateMessageReceivedEvent) {
+            if (event.author.idLong != config.owner) return
+            if (event.message.contentRaw == "shutdown") {
+                jda.shutdown()
             }
         }
 

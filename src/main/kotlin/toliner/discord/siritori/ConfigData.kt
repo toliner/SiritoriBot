@@ -13,7 +13,8 @@ data class ConfigData(
     val gameMessage: String = "しりとり",
     val plugins: List<String>,
     @Optional
-    val savePeriod: Long = FIVE_MINUTE
+    val savePeriod: Long = FIVE_MINUTE,
+    val owner: Long
 )
 
 @Serializable
