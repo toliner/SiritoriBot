@@ -19,7 +19,7 @@ class SiritoriCorePlugin : ISiritoriCheckerPlugin {
             return Result.error(SiritoriIllegalWordException("その単語はすでに使われています。"))
         }
         val yomi = getYomi(word.word)
-        val last = SiritoriLogger.getLast()?.yomi
+        val last = SiritoriLogger.getLastYomi()
         return if (last == null || last.isEmpty() || last.last() == yomi.first()) {
             Result.of { SiritoriWord(word.word, yomi) }
         } else {

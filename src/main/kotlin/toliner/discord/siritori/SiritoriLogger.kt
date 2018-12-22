@@ -47,5 +47,7 @@ object SiritoriLogger {
 
     fun getLast(): SiritoriLog? = logs.lastOrNull()
 
+    fun getLastYomi(): String? = getLast()?.word?.filterNot { it == 'ー' }
+
     operator fun plusAssign(log: SiritoriLog) = addLog(log)
 }
