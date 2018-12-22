@@ -27,6 +27,7 @@ class SiritoriChecker(private val plugins: List<ISiritoriCheckerPlugin>) {
 
         fun applyPlugin(plugin: ISiritoriCheckerPlugin) {
             plugins += plugin
+            plugin.loadConfig(blackboard)
         }
 
         operator fun plusAssign(plugin: ISiritoriCheckerPlugin) = applyPlugin(plugin)

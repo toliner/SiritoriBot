@@ -4,6 +4,7 @@ import kotlinx.serialization.internal.StringSerializer
 import kotlinx.serialization.json.JSON
 import kotlinx.serialization.map
 import net.dv8tion.jda.core.JDABuilder
+import net.dv8tion.jda.core.MessageBuilder
 import net.dv8tion.jda.core.entities.Game
 import net.dv8tion.jda.core.entities.Guild
 import net.dv8tion.jda.core.entities.TextChannel
@@ -40,6 +41,8 @@ val plugins = mapOf(
     WordSizeCounter().toPair(),
     HankakuKatakanaConverter().toPair()
 )
+val owner = jda.getUserById(config.owner)!!
+val ownerDM = owner.openPrivateChannel().complete()
 
 fun main() {
     jda.addEventListener(object : ListenerAdapter() {
@@ -82,15 +85,24 @@ fun main() {
                             e.message!!
                         })
                     } catch (e: Exception) {
+                        val stacktrace = e.stackTrace.joinToString { it.toString() }
                         logger.warn(e.toString())
-                        logger.warn(e.stackTrace.toString())
+                        logger.warn(stacktrace)
+                        ownerDM.sendMessage(
+                            buildString {
+                                appendln("**Crush Report**")
+                                appendln(e.toString())
+                                appendln(stacktrace)
+                                appendln("**Message**")
+                                append("Content:")
+                                appendln(event.message.contentRaw)
+                                append("Author:")
+                                appendln(event.author)
+                            }
+                        )
                         buildString {
                             appendln("予期せぬエラーが発生しました。")
-                            appendln("```")
-                            appendln(e.message)
-                            appendln(e.stackTrace)
-                            appendln("```")
-                            appendln("@toliner#3510 ")
+                            appendln("開発者に情報を送信します。")
                         }
                     }
                 ).queue()
