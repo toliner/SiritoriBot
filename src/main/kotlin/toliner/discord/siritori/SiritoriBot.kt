@@ -12,10 +12,7 @@ import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent
 import net.dv8tion.jda.core.events.message.priv.PrivateMessageReceivedEvent
 import net.dv8tion.jda.core.hooks.ListenerAdapter
 import org.slf4j.LoggerFactory
-import toliner.discord.siritori.plugin.SiritoriCorePlugin
-import toliner.discord.siritori.plugin.SiritoriIllegalWordException
-import toliner.discord.siritori.plugin.WordSizeCounter
-import toliner.discord.siritori.plugin.toPair
+import toliner.discord.siritori.plugin.*
 import java.io.File
 
 val logger = LoggerFactory.getLogger("SiritoriBot")
@@ -40,7 +37,8 @@ val blackboard = File("blackboard.json").let { file ->
 }
 val plugins = mapOf(
     SiritoriCorePlugin().toPair(),
-    WordSizeCounter().toPair()
+    WordSizeCounter().toPair(),
+    HankakuKatakanaConverter().toPair()
 )
 
 fun main() {
