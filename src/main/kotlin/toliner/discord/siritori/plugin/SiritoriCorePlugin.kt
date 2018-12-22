@@ -53,10 +53,10 @@ class SiritoriCorePlugin : ISiritoriCheckerPlugin {
         logger.debug(result)
         return result.lines().let {
             it.subList(2, it.lastIndex)
-        }.map {line ->
+        }.joinToString(separator = "") { line ->
             line.split(',').let {
                 it[it.lastIndex - 1]
             }
-        }.joinToString(separator = "")
+        }
     }
 }
