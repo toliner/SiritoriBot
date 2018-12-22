@@ -19,12 +19,12 @@ class SiritoriCorePlugin : ISiritoriCheckerPlugin {
         }
         val yomi = getYomi(word.word)
         val last = SiritoriLogger.getLast()?.yomi
-        return if (last == null || last.last() == yomi.first()) {
+        return if (last == null || last.isEmpty() || last.last() == yomi.first()) {
             Result.of { SiritoriWord(word.word, yomi) }
         } else {
             Result.error(
                 SiritoriIllegalWordException(
-                    "単語\"$word\"の読み\"$yomi\"の最初の文字\'${yomi.last()}\'は、直前の単語\"${SiritoriLogger.getLast()}\"の読み\"$last\"の最後の文字\'${last.last()}\'と一致しません。"
+                    "単語\"${word.word}\"の読み\"$yomi\"の最初の文字\'${yomi.last()}\'は、直前の単語\"${SiritoriLogger.getLast()?.word}\"の読み\"$last\"の最後の文字\'${last.last()}\'と一致しません。"
                 )
             )
         }
@@ -45,7 +45,9 @@ class SiritoriCorePlugin : ISiritoriCheckerPlugin {
         var node = lattice.bosNode()
         return buildString {
             while (node != null) {
-                append(node.feature().split(',').last())
+                append(node.feature().split(',').let {
+                    it[it.lastIndex - 1]
+                })
                 node = node.next()
             }
         }.filterNot { it == '*' }
