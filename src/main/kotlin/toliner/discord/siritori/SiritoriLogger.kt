@@ -29,6 +29,7 @@ object SiritoriLogger {
     }
 
     fun addLog(log: SiritoriLog) {
+        logger.info("Word Accepted: ${log.word}(${log.yomi}) by ${jda.getUserById(log.owner)}")
         logs += log
         loggedWords += log.word
     }
@@ -40,6 +41,7 @@ object SiritoriLogger {
     fun save() {
         synchronized(this) {
             logFile.writeBytes(ProtoBuf.dump(serializer, this))
+            logger.info("Word log save succeed.")
         }
     }
 

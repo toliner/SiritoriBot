@@ -37,6 +37,7 @@ dependencies {
     compile(group = "com.nativelibs4java", name = "bridj", version = "0.7.0")
     implementation(files("libs/cmecab-java-2.1.0.jar"))
     compile("com.github.kittinunf.result:result:2.0.0")
+    compile("ch.qos.logback:logback-classic:1.2.3")
 }
 
 tasks.withType<KotlinCompile> {

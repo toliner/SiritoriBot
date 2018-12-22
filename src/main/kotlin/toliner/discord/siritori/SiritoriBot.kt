@@ -10,21 +10,30 @@ import net.dv8tion.jda.core.entities.TextChannel
 import net.dv8tion.jda.core.events.ShutdownEvent
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent
 import net.dv8tion.jda.core.hooks.ListenerAdapter
+import org.slf4j.LoggerFactory
 import toliner.discord.siritori.plugin.SiritoriCorePlugin
 import toliner.discord.siritori.plugin.SiritoriIllegalWordException
 import toliner.discord.siritori.plugin.WordSizeCounter
 import toliner.discord.siritori.plugin.toPair
 import java.io.File
 
-val config = JSON.parse(ConfigData.serializer(), File("config.json").readText())
+val logger = LoggerFactory.getLogger("SiritoriBot")
+val config = try {
+    JSON.parse(ConfigData.serializer(), File("config.json").readText())
+} finally {
+    logger.warn("config.json does not exist!")
+}
 val jda = JDABuilder(config.token)
     .setGame(Game.playing(config.gameMessage))
     .build()
 val blackboard = File("blackboard.json").let { file ->
     if (file.exists()) {
+
         JSON.parse((StringSerializer to StringSerializer).map, file.readText()) as MutableMap
     } else {
+        logger.info("blackboard.json does not exist.")
         file.createNewFile()
+        logger.info("Succeed to create blackboard.json")
         mutableMapOf()
     }
 }
@@ -44,7 +53,7 @@ fun main() {
                     e.printStackTrace()
                 }
             }
-            println(buildString {
+            logger.info(buildString {
                 append("Plugin ")
                 config.plugins.forEachIndexed{ i, str ->
                     append(str)
@@ -60,6 +69,7 @@ fun main() {
         override fun onGuildMessageReceived(event: GuildMessageReceivedEvent) {
             if (!verifyGuildAndChannel(event.guild, event.channel) || event.author.idLong == jda.selfUser.idLong) return
             synchronized(checker) {
+                logger.info("Message Received: ${event.message.contentRaw} by ${event.author}")
                 event.channel.sendMessage(
                     try {
                         checker.check(event.message.contentRaw).fold({
@@ -69,9 +79,12 @@ fun main() {
                                 appendln("次の単語の読みの先頭の文字は\"${it.yomi.last()}\"です。")
                             }
                         }, { e: SiritoriIllegalWordException ->
+                            logger.info("Wrong message received. word:${event.message.contentRaw} owner:${event.message.author} message:${e.message}")
                             e.message!!
                         })
                     } catch (e: Exception) {
+                        logger.warn(e.toString())
+                        logger.warn(e.stackTrace.toString())
                         buildString {
                             appendln("予期せぬエラーが発生しました。")
                             appendln("```")
@@ -86,6 +99,7 @@ fun main() {
         }
 
         override fun onShutdown(event: ShutdownEvent?) {
+            logger.info("Bot shutdown")
             checker.saveConfig(blackboard)
             File("blackboard.json").writeText(JSON.stringify((StringSerializer to StringSerializer).map, blackboard))
             SiritoriLogger.save()
