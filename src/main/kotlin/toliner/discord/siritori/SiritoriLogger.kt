@@ -1,21 +1,24 @@
 package toliner.discord.siritori
 
-import kotlinx.serialization.list
+import kotlinx.serialization.SerialId
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.protobuf.ProtoBuf
 import java.io.File
 import java.util.*
 import kotlin.concurrent.timerTask
 
+@Serializable
 object SiritoriLogger {
+    @SerialId(1)
     private val logs: MutableSet<SiritoriLog>
     private val loggedWords: MutableSet<String>
     private val logFile = File("siritori.log.bin")
-    private val serializer = SiritoriLog.serializer().list
+    private val serializer = SiritoriLogger.`$serializer`
     private val timer = Timer()
 
     init {
         logs = if (logFile.exists()) {
-            ProtoBuf.load(serializer, logFile.inputStream().use { it.readAllBytes() }).toMutableSet()
+            ProtoBuf.load(serializer, logFile.inputStream().use { it.readAllBytes() }).logs
         } else {
             logFile.createNewFile()
             mutableSetOf()
@@ -35,7 +38,9 @@ object SiritoriLogger {
     fun clear() = logs.clear()
 
     fun save() {
-        logFile.writeBytes(ProtoBuf.dump(serializer, synchronized(logs) { logs.toList() }))
+        synchronized(this) {
+            logFile.writeBytes(ProtoBuf.dump(serializer, this))
+        }
     }
 
     fun getLast(): SiritoriLog? = logs.lastOrNull()

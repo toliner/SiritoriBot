@@ -102,3 +102,5 @@ gradle-app.setting
 # gradle/wrapper/gradle-wrapper.properties
 
 !libs/cmecab-java-2.1.0.jar
+/config.json
+/.idea/statistic.xml
