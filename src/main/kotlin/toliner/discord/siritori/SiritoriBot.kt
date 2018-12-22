@@ -61,15 +61,26 @@ fun main() {
             if (!verifyGuildAndChannel(event.guild, event.channel) || event.author.idLong == jda.selfUser.idLong) return
             synchronized(checker) {
                 event.channel.sendMessage(
-                    checker.check(event.message.contentRaw).fold({
-                        SiritoriLogger.addLog(SiritoriLog(event.author.idLong, it.word, it.yomi))
+                    try {
+                        checker.check(event.message.contentRaw).fold({
+                            SiritoriLogger.addLog(SiritoriLog(event.author.idLong, it.word, it.yomi))
+                            buildString {
+                                appendln("単語:\"${event.message.contentRaw}\"(${it.yomi})を受け付けました。")
+                                appendln("次の単語の読みの先頭の文字は\"${it.yomi.last()}\"です。")
+                            }
+                        }, { e: SiritoriIllegalWordException ->
+                            e.message!!
+                        })
+                    } catch (e: Exception) {
                         buildString {
-                            appendln("単語:\"${event.message.contentRaw}\"(${it.yomi})を受け付けました。")
-                            appendln("次の単語の読みの先頭の文字は\"${it.yomi.last()}\"です。")
+                            appendln("予期せぬエラーが発生しました。")
+                            appendln("```")
+                            appendln(e.message)
+                            appendln(e.stackTrace)
+                            appendln("```")
+                            appendln("@toliner#3510 ")
                         }
-                    }, { e: SiritoriIllegalWordException ->
-                        e.message!!
-                    })
+                    }
                 ).queue()
             }
         }
