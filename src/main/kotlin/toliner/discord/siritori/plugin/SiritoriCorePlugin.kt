@@ -3,6 +3,7 @@ package toliner.discord.siritori.plugin
 import com.github.kittinunf.result.Result
 import net.moraleboost.mecab.impl.StandardTagger
 import toliner.discord.siritori.SiritoriLogger
+import toliner.discord.siritori.logger
 
 class SiritoriCorePlugin : ISiritoriCheckerPlugin {
     override val name: String
@@ -43,13 +44,19 @@ class SiritoriCorePlugin : ISiritoriCheckerPlugin {
         lattice.setSentence(word)
         tagger.parse(lattice)
         var node = lattice.bosNode()
-        return buildString {
+        val result = buildString {
             while (node != null) {
-                append(node.feature().split(',').let {
-                    it[it.lastIndex - 1]
-                })
+                append(node.feature())
                 node = node.next()
             }
-        }.filterNot { it == '*' }
+        }
+        logger.debug(result)
+        return result.lines().let {
+            it.subList(2, it.lastIndex)
+        }.map {line ->
+            line.split(',').let {
+                it[it.lastIndex - 1]
+            }
+        }.joinToString(separator = "")
     }
 }
