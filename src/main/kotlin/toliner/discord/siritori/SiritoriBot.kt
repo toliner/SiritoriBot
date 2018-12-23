@@ -4,7 +4,6 @@ import kotlinx.serialization.internal.StringSerializer
 import kotlinx.serialization.json.JSON
 import kotlinx.serialization.map
 import net.dv8tion.jda.core.JDABuilder
-import net.dv8tion.jda.core.MessageBuilder
 import net.dv8tion.jda.core.entities.Game
 import net.dv8tion.jda.core.entities.Guild
 import net.dv8tion.jda.core.entities.TextChannel
@@ -19,8 +18,9 @@ import java.io.File
 val logger = LoggerFactory.getLogger("SiritoriBot")
 val config = try {
     JSON.parse(ConfigData.serializer(), File("config.json").readText())
-} finally {
-    logger.warn("config.json does not exist!")
+} catch (e: Exception) {
+    logger.warn(e.message)
+    throw e
 }
 val jda = JDABuilder(config.token)
     .setGame(Game.playing(config.gameMessage))
@@ -41,8 +41,8 @@ val plugins = mapOf(
     WordSizeCounter().toPair(),
     HankakuKatakanaConverter().toPair()
 )
-val owner = jda.getUserById(config.owner)!!
-val ownerDM = owner.openPrivateChannel().complete()
+val owner by lazy { jda.getUserById(config.owner)!! }
+val ownerDM by lazy { owner.openPrivateChannel().complete() }
 
 fun main() {
     jda.addEventListener(object : ListenerAdapter() {
@@ -85,7 +85,7 @@ fun main() {
                             e.message!!
                         })
                     } catch (e: Exception) {
-                        val stacktrace = e.stackTrace.joinToString { it.toString() }
+                        val stacktrace = e.stackTrace.joinToString(separator = "\n") { it.toString() }
                         logger.warn(e.toString())
                         logger.warn(stacktrace)
                         ownerDM.sendMessage(
@@ -99,7 +99,7 @@ fun main() {
                                 append("Author:")
                                 appendln(event.author)
                             }
-                        )
+                        ).queue()
                         buildString {
                             appendln("予期せぬエラーが発生しました。")
                             appendln("開発者に情報を送信します。")
