@@ -36,6 +36,8 @@ dependencies {
     compile("org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.9.1")
     compile(group = "com.nativelibs4java", name = "bridj", version = "0.7.0")
     implementation(files("libs/cmecab-java-2.1.0.jar"))
+    compile(files("libs/sudachi-0.1.1.jar"))
+    compile(files("libs/javax.json-1.1.jar"))
     compile("com.github.kittinunf.result:result:2.0.0")
     compile("ch.qos.logback:logback-classic:1.2.3")
 }
