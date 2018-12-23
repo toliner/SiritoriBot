@@ -46,13 +46,13 @@ class SiritoriCorePlugin : ISiritoriCheckerPlugin {
         var node = lattice.bosNode()
         val result = buildString {
             while (node != null) {
-                append(node.feature())
+                appendln(node.feature())
                 node = node.next()
             }
         }
         logger.debug(result)
         return result.lines().let {
-            it.subList(2, it.lastIndex)
+            it.subList(2, it.lastIndex - 1)
         }.joinToString(separator = "") { line ->
             line.split(',').let {
                 it[it.lastIndex - 1]
