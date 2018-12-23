@@ -14,10 +14,13 @@ data class AnalyzeResult(
 )
 
 object MorphologicalAnalyser {
-    private val dict = DictionaryFactory().create(ClassLoader.getSystemResource("sudachi_fulldict.json").readText())!!
-    private val tokenizer = dict.create()!!.apply {
-        setDumpOutput(PrintStream(File("logs/sudachi.log").createIfNotExists()))
-    }
+    private val tokenizer = DictionaryFactory()
+        .create(ClassLoader.getSystemResource("sudachi_fulldict.json").readText())!!
+        .use {
+            it.create()!!.apply {
+                setDumpOutput(PrintStream(File("logs/sudachi.log").createIfNotExists()))
+            }
+        }
 
     fun analyze(word: String): AnalyzeResult {
         val tokens = tokenizer.tokenize(Tokenizer.SplitMode.C, word)
