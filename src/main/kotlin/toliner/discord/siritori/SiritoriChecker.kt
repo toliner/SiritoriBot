@@ -7,7 +7,7 @@ import toliner.discord.siritori.plugin.SiritoriWord
 
 class SiritoriChecker(private val plugins: List<ISiritoriCheckerPlugin>) {
     fun check(word: String): Result<SiritoriWord, SiritoriIllegalWordException> {
-        return plugins.fold(Result.of { SiritoriWord(word, word) }) { acc, plugin ->
+        return plugins.fold(Result.of { SiritoriWord(word, MorphologicalAnalyser.analyze(word)) }) { acc, plugin ->
             acc.fold({
                 plugin.check(it)
             }, {
@@ -27,6 +27,7 @@ class SiritoriChecker(private val plugins: List<ISiritoriCheckerPlugin>) {
 
         fun applyPlugin(plugin: ISiritoriCheckerPlugin) {
             plugins += plugin
+            plugin.loadConfig(blackboard)
         }
 
         operator fun plusAssign(plugin: ISiritoriCheckerPlugin) = applyPlugin(plugin)

@@ -7,24 +7,21 @@ import java.io.File
 import java.util.*
 import kotlin.concurrent.timerTask
 
-@Serializable
 object SiritoriLogger {
-    @SerialId(1)
-    private val logs: MutableSet<SiritoriLog>
+    private val logs: MutableList<SiritoriLog>
     private val loggedWords: MutableSet<String>
     private val logFile = File("siritori.log.bin")
-    private val serializer = SiritoriLogger.`$serializer`
+    private val serializer = SiritoriLogWrapper.serializer()
     private val timer = Timer()
 
     init {
         logs = if (logFile.exists()) {
-            ProtoBuf.load(serializer, logFile.inputStream().use { it.readAllBytes() }).logs
+            ProtoBuf.load(serializer, logFile.inputStream().use { it.readAllBytes() }).logs.toMutableList()
         } else {
             logFile.createNewFile()
-            mutableSetOf()
+            mutableListOf()
         }
         loggedWords = logs.map { it.word }.toMutableSet()
-        // 10000ms = 10sごとにログ保存
         timer.schedule(timerTask { save() }, config.savePeriod, config.savePeriod)
     }
 
@@ -36,18 +33,24 @@ object SiritoriLogger {
 
     fun contains(word: String) = loggedWords.contains(word)
 
-    fun clear() = logs.clear()
+    fun clear() {
+        logs.clear()
+        loggedWords.clear()
+    }
 
     fun save() {
         synchronized(this) {
-            logFile.writeBytes(ProtoBuf.dump(serializer, this))
+            logFile.writeBytes(ProtoBuf.dump(serializer, SiritoriLogWrapper(logs.toList())))
             logger.info("Word log save succeed.")
         }
     }
 
     fun getLast(): SiritoriLog? = logs.lastOrNull()
 
-    fun getLastYomi(): String? = getLast()?.word?.filterNot { it == 'ー' }
+    fun getLastYomi(): String? = getLast()?.yomi?.filterNot { it == 'ー' }
 
     operator fun plusAssign(log: SiritoriLog) = addLog(log)
+
+    @Serializable
+    data class SiritoriLogWrapper(@SerialId(1) val logs: List<SiritoriLog>)
 }
