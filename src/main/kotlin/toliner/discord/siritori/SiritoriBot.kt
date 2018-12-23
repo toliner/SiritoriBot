@@ -6,7 +6,6 @@ import kotlinx.serialization.map
 import net.dv8tion.jda.core.JDABuilder
 import net.dv8tion.jda.core.entities.Game
 import org.slf4j.LoggerFactory
-import toliner.discord.siritori.plugin.HankakuKatakanaConverter
 import toliner.discord.siritori.plugin.SiritoriCorePlugin
 import toliner.discord.siritori.plugin.WordSizeCounter
 import toliner.discord.siritori.plugin.toPair
@@ -34,8 +33,7 @@ val blackboard = File("blackboard.json").let { file ->
 }
 val plugins = mapOf(
     SiritoriCorePlugin().toPair(),
-    WordSizeCounter().toPair(),
-    HankakuKatakanaConverter().toPair()
+    WordSizeCounter().toPair()
 )
 val owner by lazy { jda.getUserById(config.owner)!! }
 val ownerDM by lazy { owner.openPrivateChannel().complete() }
