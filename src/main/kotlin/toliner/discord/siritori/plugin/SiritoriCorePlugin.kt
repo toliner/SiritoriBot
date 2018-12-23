@@ -6,7 +6,7 @@ import toliner.discord.siritori.SiritoriLogger
 class SiritoriCorePlugin : ISiritoriCheckerPlugin {
     override val name: String
         get() = "core"
-    private val regex = """[\p{IsHan}\p{IsHiragana}\p{IsKatakana}ー]+""".toRegex()
+    private val regex = """[\p{IsHan}\p{IsHiragana}\p{IsKatakana}ーｰﾟﾞ]+""".toRegex()
     private val lowerCase = "ァィゥェォヵㇰヶㇱㇲッㇳㇴㇵㇶㇷㇷㇸㇹㇺャュョㇻㇼㇽㇾㇿヮ"
 
     override fun check(word: SiritoriWord): Result<SiritoriWord, SiritoriIllegalWordException> {
@@ -16,7 +16,7 @@ class SiritoriCorePlugin : ISiritoriCheckerPlugin {
         if (SiritoriLogger.contains(word.word)) {
             return Result.error(SiritoriIllegalWordException("その単語はすでに使われています。"))
         }
-        val yomi = word.analyzeResult.readingForm
+        val yomi = word.analyzeResult.readingForm.let { if (it.isEmpty()) word.analyzeResult.normalizedForm else it }
         val last = SiritoriLogger.getLastYomi()
         return if (last.isNullOrEmpty() || judge(last, yomi)) {
             Result.of { word }
