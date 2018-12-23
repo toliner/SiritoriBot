@@ -39,5 +39,5 @@ val owner by lazy { jda.getUserById(config.owner)!! }
 val ownerDM by lazy { owner.openPrivateChannel().complete() }
 
 fun main() {
-    jda.addEventListener(SiritoriCorePlugin())
+    jda.addEventListener(SiritoriBotEventListener())
 }
