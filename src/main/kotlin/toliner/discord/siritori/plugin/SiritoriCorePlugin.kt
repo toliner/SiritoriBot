@@ -1,15 +1,13 @@
 package toliner.discord.siritori.plugin
 
 import com.github.kittinunf.result.Result
-import net.moraleboost.mecab.impl.StandardTagger
 import toliner.discord.siritori.SiritoriLogger
-import toliner.discord.siritori.logger
 
 class SiritoriCorePlugin : ISiritoriCheckerPlugin {
     override val name: String
         get() = "core"
     private val regex = """[\p{IsHan}\p{IsHiragana}\p{IsKatakana}ー]+""".toRegex()
-    private val tagger = StandardTagger("-Oyomi")
+    private val lowerCase = "ァィゥェォヵㇰヶㇱㇲッㇳㇴㇵㇶㇷㇷㇸㇹㇺャュョㇻㇼㇽㇾㇿヮ"
 
     override fun check(word: SiritoriWord): Result<SiritoriWord, SiritoriIllegalWordException> {
         if (!regex.matches(word.word)) {
@@ -18,10 +16,10 @@ class SiritoriCorePlugin : ISiritoriCheckerPlugin {
         if (SiritoriLogger.contains(word.word)) {
             return Result.error(SiritoriIllegalWordException("その単語はすでに使われています。"))
         }
-        val yomi = getYomi(word.word)
+        val yomi = word.analyzeResult.readingForm
         val last = SiritoriLogger.getLastYomi()
-        return if (last == null || last.isEmpty() || last.last() == yomi.first()) {
-            Result.of { SiritoriWord(word.word, yomi) }
+        return if (last.isNullOrEmpty() || judge(last, yomi)) {
+            Result.of { word }
         } else {
             Result.error(
                 SiritoriIllegalWordException(
@@ -31,32 +29,20 @@ class SiritoriCorePlugin : ISiritoriCheckerPlugin {
         }
     }
 
+    private fun judge(last: String, current: String): Boolean {
+         return if (lowerCase.contains(last.last())) {
+             val cut = last.takeLastWhile { lowerCase.contains(it) }
+             cut == current.take(cut.length)
+        } else {
+            last.last() == current.first()
+        }
+    }
+
     override fun loadConfig(blackboard: Map<String, String>) {
         //Do Nothing
     }
 
     override fun saveConfig(blackboard: MutableMap<String, String>) {
-        tagger.destroy()
-    }
-
-    private fun getYomi(word: String): String {
-        val lattice = tagger.createLattice()
-        lattice.setSentence(word)
-        tagger.parse(lattice)
-        var node = lattice.bosNode()
-        val result = buildString {
-            while (node != null) {
-                appendln(node.feature())
-                node = node.next()
-            }
-        }
-        logger.debug(result)
-        return result.lines().let {
-            it.subList(2, it.lastIndex - 1)
-        }.joinToString(separator = "") { line ->
-            line.split(',').let {
-                it[it.lastIndex - 1]
-            }
-        }
+        // Do Nothing
     }
 }

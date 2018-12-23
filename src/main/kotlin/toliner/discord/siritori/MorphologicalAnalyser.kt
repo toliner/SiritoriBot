@@ -2,6 +2,7 @@ package toliner.discord.siritori
 
 import com.worksap.nlp.sudachi.DictionaryFactory
 import com.worksap.nlp.sudachi.Tokenizer
+import org.slf4j.LoggerFactory
 import java.io.File
 import java.io.PrintStream
 
@@ -21,9 +22,15 @@ object MorphologicalAnalyser {
                 setDumpOutput(PrintStream(File("logs/sudachi.log").createIfNotExists()))
             }
         }
+    private val logger = LoggerFactory.getLogger("Sudachi")
 
     fun analyze(word: String): AnalyzeResult {
         val tokens = tokenizer.tokenize(Tokenizer.SplitMode.C, word)
+        logger.debug("Tokenize Word: $word")
+        logger.debug("Surface, Normalized, Reading, PartOfSpeech")
+        tokens.forEach {
+            logger.debug("${it.surface()}, ${it.normalizedForm()}, ${it.readingForm()}, [${it.partOfSpeech().joinToString()}]")
+        }
         return AnalyzeResult(
             original =  word,
             normalizedForm =  tokens.joinToString("") { it.normalizedForm() },

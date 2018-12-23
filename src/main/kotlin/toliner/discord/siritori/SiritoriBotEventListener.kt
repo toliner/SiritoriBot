@@ -11,6 +11,7 @@ import net.dv8tion.jda.core.events.message.priv.PrivateMessageReceivedEvent
 import net.dv8tion.jda.core.hooks.ListenerAdapter
 import toliner.discord.siritori.plugin.SiritoriIllegalWordException
 import java.io.File
+import java.lang.IllegalStateException
 
 class SiritoriBotEventListener : ListenerAdapter() {
     val checker = SiritoriChecker.Builder().also { builder ->
@@ -42,10 +43,10 @@ class SiritoriBotEventListener : ListenerAdapter() {
             event.channel.sendMessage(
                 try {
                     checker.check(event.message.contentRaw).fold({
-                        SiritoriLogger.addLog(SiritoriLog(event.author.idLong, it.word, it.yomi))
+                        SiritoriLogger.addLog(SiritoriLog(event.author.idLong, it.word, it.analyzeResult?.readingForm ?: throw IllegalStateException("Word must be analyzed")))
                         buildString {
-                            appendln("単語:\"${event.message.contentRaw}\"(${it.yomi})を受け付けました。")
-                            appendln("次の単語の読みの先頭の文字は\"${it.yomi.last()}\"です。")
+                            appendln("単語:\"${event.message.contentRaw}\"(${it.analyzeResult.readingForm})を受け付けました。")
+                            appendln("次の単語の読みの先頭の文字は\"${it.analyzeResult.readingForm.last()}\"です。")
                         }
                     }, { e: SiritoriIllegalWordException ->
                         logger.info("Wrong message received. word:${event.message.contentRaw} owner:${event.message.author} message:${e.message}")
