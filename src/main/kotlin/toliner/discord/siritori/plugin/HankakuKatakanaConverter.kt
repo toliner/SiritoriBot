@@ -23,14 +23,7 @@ class HankakuKatakanaConverter: ISiritoriCheckerPlugin {
     }
 
     private fun convert(word: String): String {
-        var str = word.map {
-            val index = 半角.indexOf(it)
-            if (index == -1) {
-                it
-            } else {
-                全角[index]
-            }
-        }.joinToString(separator = "")
+        var str = word
         fun List<Int>.getConnectedString(): List<String> {
             return filter { it != 0 }.map {
                 buildString {
@@ -47,7 +40,14 @@ class HankakuKatakanaConverter: ISiritoriCheckerPlugin {
         handakuten.forEach {
             str = str.replace(it, 半濁点カナ[it]!!)
         }
-        return str
+        return str.map {
+            val index = 半角.indexOf(it)
+            if (index == -1) {
+                it
+            } else {
+                全角[index]
+            }
+        }.joinToString(separator = "")
     }
 
     override fun loadConfig(blackboard: Map<String, String>) {
