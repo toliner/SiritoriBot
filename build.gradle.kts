@@ -1,3 +1,4 @@
+import org.gradle.jvm.tasks.Jar
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 buildscript {
@@ -13,6 +14,7 @@ buildscript {
 plugins {
     kotlin("jvm") version "1.3.11"
     id("kotlinx-serialization") version "1.3.11"
+    id("application")
 }
 
 group = "toliner.discord"
@@ -33,10 +35,20 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.0.1")
     compile("org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.9.1")
     compile(group = "com.nativelibs4java", name = "bridj", version = "0.7.0")
-    implementation(files("libs/cmecab-java-2.1.0.jar"))
+    compile(files("libs/sudachi-0.1.1.jar"))
+    compile(files("libs/javax.json-1.1.jar"))
     compile("com.github.kittinunf.result:result:2.0.0")
+    compile("ch.qos.logback:logback-classic:1.2.3")
 }
 
 tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "1.8"
+}
+
+application {
+    mainClassName = "toliner.discord.siritori.SiritoriBotKt"
+}
+
+tasks.withType<Jar> {
+    manifest.attributes["Main-Class"] = "toliner.discord.siritori.SiritoriBotKt"
 }
