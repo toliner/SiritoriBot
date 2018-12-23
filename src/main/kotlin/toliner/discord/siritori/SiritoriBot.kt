@@ -27,7 +27,6 @@ val jda = JDABuilder(config.token)
     .build()
 val blackboard = File("blackboard.json").let { file ->
     if (file.exists()) {
-
         JSON.parse((StringSerializer to StringSerializer).map, file.readText()) as MutableMap
     } else {
         logger.info("blackboard.json does not exist.")
