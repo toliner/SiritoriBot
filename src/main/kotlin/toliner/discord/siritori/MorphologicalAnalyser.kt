@@ -17,11 +17,9 @@ data class AnalyzeResult(
 object MorphologicalAnalyser {
     private val tokenizer = DictionaryFactory()
         .create(ClassLoader.getSystemResource("sudachi_fulldict.json").readText())!!
-        .use {
-            it.create()!!.apply {
-                setDumpOutput(PrintStream(File("logs/sudachi.log").createIfNotExists()))
-            }
-        }
+        .create()!!.apply {
+        setDumpOutput(PrintStream(File("logs/sudachi.log").createIfNotExists()))
+    }
     private val logger = LoggerFactory.getLogger("Sudachi")
 
     fun analyze(word: String): AnalyzeResult {
