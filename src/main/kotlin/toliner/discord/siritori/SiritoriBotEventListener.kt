@@ -18,6 +18,7 @@ class SiritoriBotEventListener : ListenerAdapter() {
         config.plugins.forEach {
             try {
                 builder.applyPlugin(plugins[it] ?: throw RuntimeException("\"${it}\"という名前のpluginは存在しません。"))
+                plugins[it]?.loadConfig(blackboard)
             } catch (e: Exception) {
                 jda.shutdownNow()
                 e.printStackTrace()
