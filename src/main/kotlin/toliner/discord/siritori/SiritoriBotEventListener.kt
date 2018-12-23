@@ -24,6 +24,7 @@ class SiritoriBotEventListener : ListenerAdapter() {
                 e.printStackTrace()
             }
         }
+        saveBlackboard()
         logger.info(buildString {
             append("Plugin ")
             config.plugins.forEachIndexed { i, str ->
@@ -88,11 +89,14 @@ class SiritoriBotEventListener : ListenerAdapter() {
     override fun onShutdown(event: ShutdownEvent?) {
         logger.info("Bot shutdown")
         checker.saveConfig(blackboard)
-        File("blackboard.json").writeText(JSON.stringify((StringSerializer to StringSerializer).map, blackboard))
+        saveBlackboard()
         SiritoriLogger.save()
     }
 
     private fun verifyGuildAndChannel(guild: Guild, channel: TextChannel): Boolean =
         config.guild.let { info -> info.guildId == guild.idLong && info.channelId == channel.idLong }
 
+    private fun saveBlackboard() {
+        File("blackboard.json").writeText(JSON.stringify((StringSerializer to StringSerializer).map, blackboard))
+    }
 }
