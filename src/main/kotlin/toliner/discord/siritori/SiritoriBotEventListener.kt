@@ -18,6 +18,7 @@ class SiritoriBotEventListener : ListenerAdapter() {
         config.plugins.forEach {
             try {
                 builder.applyPlugin(plugins[it] ?: throw RuntimeException("\"${it}\"という名前のpluginは存在しません。"))
+                plugins[it]?.loadConfig(blackboard)
             } catch (e: Exception) {
                 jda.shutdownNow()
                 e.printStackTrace()
@@ -43,7 +44,7 @@ class SiritoriBotEventListener : ListenerAdapter() {
             event.channel.sendMessage(
                 try {
                     checker.check(event.message.contentRaw).fold({
-                        SiritoriLogger.addLog(SiritoriLog(event.author.idLong, it.word, it.analyzeResult?.readingForm ?: throw IllegalStateException("Word must be analyzed")))
+                        SiritoriLogger.addLog(SiritoriLog(event.author.idLong, it.word, it.analyzeResult.readingForm))
                         buildString {
                             appendln("単語:\"${event.message.contentRaw}\"(${it.analyzeResult.readingForm})を受け付けました。")
                             appendln("次の単語の読みの先頭の文字は\"${it.analyzeResult.readingForm.last()}\"です。")

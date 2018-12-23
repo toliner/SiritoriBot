@@ -16,7 +16,7 @@ object SiritoriLogger {
 
     init {
         logs = if (logFile.exists()) {
-            ProtoBuf.load(serializer, logFile.inputStream().use { it.readAllBytes() }).logs.toMutableList()
+            ProtoBuf.load(serializer, logFile.inputStream().use { it.readBytes() }).logs.toMutableList()
         } else {
             logFile.createNewFile()
             mutableListOf()
